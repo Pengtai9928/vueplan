@@ -7,90 +7,100 @@
 </head>
 
 <body>
-  <h2>Graduation Progress</h2>
+  <div class="row">
+    <h2>Graduation Progress</h2>
+  </div>
 
-  <div id="app">
+  <!-- Prompt user to log in -->
+  <div class="row" v-if="!user.loggedIn">
+    <router-link to="/login"><a>Please login first.</a></router-link>
+  </div>
+
+  <!-- Show page when user is logged in -->
+  <div v-if="user.loggedIn">
+    <div class = "row grad-prog-row">
+      <label>Your major is: </label> <b> {{ major }}</b>
       <br>
-      <br>
-      <h3>University Level Requirements</h3>
-  
-      <!-- table for university level requirements-->
-      <table :records="ULRRecords">
-        <!-- table header -->
+      <label>Semesters completed: </label> <b> {{ sem_completed }}</b>
+    </div>
+
+    <div class="row grad-prog-row">
+      <h4>University Level Requirements</h4>
+    
+      <table :records="get_ulr_table()">
         <thead>
           <tr>
             <th>University Level Requirment</th>
-            <th>Module Taken</th>
-            <th>Status</th>
+            <th>Module Selected</th>
+            <th class="add-complete">Added</th>
+            <th class="add-complete">Completed</th>
           </tr>
         </thead>
-  
-        <!-- table body -->
-        <tbody :records="ULRRecords">
-          <tr v-for="record in ULRRrecords" v-bind:key="record" >
-            <td>{{record.requirement}}</td>
-            <td>{{record.moduleTaken}}</td>
-            <td>{{record.status}}</td>
+    
+        <tbody :records= "get_ulr_table()">
+          <tr v-for="(record, idx) in get_ulr_table()" v-bind:key="idx" >
+            <td> {{record.ulr}}</td>
+            <td> {{record.selected}}</td>
+            <td class="add-complete"> {{record.added}}</td>
+            <td class="add-complete"> {{record.completed}}</td>
           </tr>
         </tbody>
-      </table>
-  
-      <br>
-      <br>
-  
-      <h3>Programme Requirements</h3>
-  
-      <!-- table for programme requirements-->
-      <table :records="CoreRecords">
-        <!-- table header -->
-        <thead>
-          <tr>
-            <th>Programme Requirment</th>
-            <th>Module Taken</th>
-            <th>Status</th>
+        </table>
+      </div>
+
+      <div class="row grad-prog-row">
+        <h4>Programme Requirements</h4>
+        <!-- table for programme requirements-->
+        <table :records="get_pr_table()">
+          <!-- table header -->
+          <thead>
+            <tr>
+              <th>Programme Requirment</th>
+              <th>Module Selected</th>
+              <th class="add-complete">Added</th>
+              <th class="add-complete">Completed</th>
+            </tr>
+          </thead>
+
+          <!-- table body -->
+          <tbody :records= "get_pr_table()">
+            <tr v-for="(record, idx) in get_pr_table()" v-bind:key="idx" > 
+                <td> {{record.requirement}}</td>
+                <td> {{record.selected}}</td>
+                <td class="add-complete"> {{record.added}}</td>
+                <td class="add-complete"> {{record.completed}}</td>
+            </tr>
+
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row grad-prog-row">
+        <h4>Unrestricted Electives</h4>
+
+        <table :records="get_ue_table()">
+          <thead>
+            <tr>
+              <th>8 Unrestricted Electives</th>
+              <th>Module Selected</th>
+              <th class="add-complete">Added</th>
+              <th class="add-complete">Completed</th>
+            </tr>
+          </thead>
+        
+          <tbody :records="get_ue_table()">
+            <tr v-for="(record, idx) in get_ue_table()" v-bind:key="idx" >
+              <td> {{record.requirement}}</td>
+              <td> {{record.selected}}</td>
+              <td class="add-complete"> {{record.added}}</td>
+              <td class="add-complete"> {{record.completed}}</td>
           </tr>
-        </thead>
-  
-        <!-- table body -->
-        <tbody :records="CoreRecords">
-          <tr v-for="record in CoreRecords" v-bind:key="record" >
-            <td>{{record.requirement}}</td>
-            <td>{{record.moduleTaken}}</td>
-            <td>{{record.status}}</td>
-          </tr>
-        </tbody>
-      </table>
-  
-      <br>
-      <br>
-  
-  
-      <h3>Unrestricted Electives</h3>
-  
-      <!-- table for UE requirements-->
-      <table :records="UERecords">
-        <!-- table header -->
-        <thead>
-          <tr>
-            <th>8 Unrestricted Electives</th>
-            <th>Module Taken</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-  
-        <!-- table body -->
-        <tbody :records="UERecords">
-          <tr v-for="record in UERecords" v-bind:key="record" >
-            <td>{{record.requirement}}</td>
-            <td>{{record.moduleTaken}}</td>
-            <td>{{record.status}}</td>
-          </tr>
-        </tbody>
-      </table>
-  
-  
-  
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 </body>
 
 </html>

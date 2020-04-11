@@ -2,61 +2,116 @@
 
 <html>
   <head>
-    <title>vueplan SEP Page</title>
+    <title>SEP Module Mapping Page</title>
   </head>
   
   <body>
-    <h2>SEP Module Mappings </h2>
-    
-    <div id="app" >
-      <!-- Labels -->
-      <label for="Pus">Filter by PU and Course:</label>
-      <label for="Courses"></label>
-      <br>
+    <div class="row">
+      <h2>SEP Module Mappings</h2>
+    </div>
 
-      <!-- Filter by PU -->
-      <select v-model='pus' multiple>
-        <option>Technical University of Denmark</option>
-        <option>Technical University of Munich</option>
-        <option>Georgia Institute of Technology</option>
-      </select>
+    <!-- Prompt user to log in -->
+    <div class="row" v-if="!user.loggedIn">
+      <router-link to="/login"><a>Please login first.</a></router-link>
+    </div>
 
-      <!-- Filter by Course -->
-      <select v-model='courses' multiple>
-        <option>Business Analytics</option>
-        <option>Economics</option>
-      </select>
-      <br> <br>
+    <!-- Show page when user is logged in -->
+    <div v-if="user.loggedIn">
+      <div class="row multiselect-module">
+        <!-- Filter by PU -->
+        <div class = "multiselect_title">
+          <label>Filter by Partner Universities</label>
+        </div>
+        <multiselect 
+          v-model="pus" 
+          :options="allPus" 
+          :multiple="true" 
+          :close-on-select="false" 
+          :clear-on-select="false" 
+          :preserve-search="true" 
+          placeholder="Select Partner University" 
+          :preselect-first="false">
+          <!-- 
+          group-values="all"
+          group-label="selectAll"
+          :group-select="true"
+          -->
+          <template class="select-option" slot="selection" slot-scope="{ values, search, isOpen }">
+            <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} PUs selected</span>
+          </template>
+        </multiselect>
+      </div>
 
-      <table :modules="modules" pus="pus" courses="courses">
-        <!-- table header -->
-        <thead>
-          <tr>
-            <th>Partner University</th>
-            <th>Course</th>
-            <th>NUS Module Code</th>
-            <th>NUS Module Title</th>
-            <th>MCs</th>
-            <th>PU Module Code</th>
-            <th>PU Module Title</th>
-            <th>PU MCs</th>
-          </tr>
-        </thead>
+      <div class="row multiselect-module">
+        <!-- Filter by Course -->
+        <div class = "multiselect_title">
+          <label>Filter by Courses*</label>
+        </div>
+        <multiselect 
+          v-model="courses" 
+          :options="Object.keys(allmajors)" 
+          :multiple="true" 
+          :close-on-select="false" 
+          :clear-on-select="false" 
+          :preserve-search="true" 
+          placeholder="Select Course" 
+          :preselect-first="false" 
+          :allow-empty="false"
+          open-direction="bottom">
+          <template slot="selection" slot-scope="{ values, search, isOpen }">
+          </template>
+        </multiselect>
+      </div>
+        
+      <div class="row">
+        <table class="datatable" :sepMappings="sepMappings" pus="pus" courses="courses">
+          <!-- table header -->
+          <thead>
+            <tr>
+              <th>Partner University</th>
+              <th>NUS Module Code</th>
+              <th>NUS Module Title</th>
+              <th>MCs</th>
+              <th>PU Module Code</th>
+              <th>PU Module Title</th>
+              <th>PU MCs</th>
+            </tr>
+          </thead>
 
-          <!-- table body -->
-        <tbody :modules="modules" pus="pus" courses="courses">
-          <tr v-for="module in modules" v-show="courses.includes(module.course) && pus.includes(module.pu)">
-            <td>{{module.pu}}</td>
-            <td>{{module.course}}</td>
-            <td>{{module.nusModuleCode}}</td>
-            <td>{{module.nusModuleTitle}}</td>
-            <td>{{module.mcs}}</td>
-            <td>{{module.puModuleCode}}</td>
-            <td>{{module.puModuleTitle}}</td>
-            <td>{{module.puMcs}}</td>
-          </tr>
-        </tbody>
-      </table>
+          <tbody :sepMappings="sepMappings" pus="pus" courses="courses">
+            <!-- Filter Course Only [Default] -->
+            <tr v-for="mapping in sepMappings" v-show="!pus.length && courses.length && relevant(allmajors, mapping.nusModuleCode)">
+              <td>{{mapping.pu}}</td>
+              <td>{{mapping.nusModuleCode}}</td>
+              <td>{{mapping.nusModuleTitle}}</td>
+              <td>{{mapping.mcs}}</td>
+              <td>{{mapping.puModuleCode}}</td>
+              <td>{{mapping.puModuleTitle}}</td>
+              <td>{{mapping.puMcs}}</td>
+            </tr>
+            <!-- Filter PU Only -->
+            <tr v-for="mapping in sepMappings" v-show="pus.length && !courses.length && pus.includes(mapping.pu)">
+              <td>{{mapping.pu}}</td>
+              <td>{{mapping.nusModuleCode}}</td>
+              <td>{{mapping.nusModuleTitle}}</td>
+              <td>{{mapping.mcs}}</td>
+              <td>{{mapping.puModuleCode}}</td>
+              <td>{{mapping.puModuleTitle}}</td>
+              <td>{{mapping.puMcs}}</td>
+            </tr>
+            <!-- Filter Course and PU -->
+            <tr v-for="mapping in sepMappings" v-show="pus.length && courses.length && relevant(allmajors, mapping.nusModuleCode) && pus.includes(mapping.pu)">
+              <td>{{mapping.pu}}</td>
+              <td>{{mapping.nusModuleCode}}</td>
+              <td>{{mapping.nusModuleTitle}}</td>
+              <td>{{mapping.mcs}}</td>
+              <td>{{mapping.puModuleCode}}</td>
+              <td>{{mapping.puModuleTitle}}</td>
+              <td>{{mapping.puMcs}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </body>
 </html>
